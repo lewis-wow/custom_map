@@ -2,50 +2,44 @@
 #include <set>
 #include <vector>
 #include <memory>
+#include <iostream>
 
 using namespace std;
 
-template <typename T>
-class Map {
+template <class T>
+class Map_m {
     public:
-        Map() {}
-        ~Map() {}
+        Map_m<T>() {}
+        ~Map_m() {}
 
-        Map& operator=(const Map& map) {
-            this->entries = map.entries;
-            this->keys = map.keys;
-            this->values = map.values;
+        T insert(const string& key, const T& item) {
+            if(!keys.insert(key).second) {
+                throw runtime_error("Already exists.");  
+            }
+            keys.insert(key);
+            entries.push_back(make_pair(key, item));
 
-            return *this;
+            return item;
         }
 
-        bool operator==(const Map& other) {
-
-        }
-
-        T operator[](const string& key) const {
-
-        }
-
-        T& operator[](const string& key) {
-
-        }
-
-        bool in(const string& key) {
-            return keys.find(key) != keys.end();
-        }
-
-        bool isEmpty() {
-            return entries.empty();
+        void erase(const string& key) {
+            if(keys.find(key)) {
+                keys.erase(key);
+                
+                for(auto it = entries.begin(); it != entries.end(); it++) {
+                    if(it->first == key) {
+                        entries.erase(it);
+                        break;
+                    }
+                }
+            }
         }
 
         class Iterator {
             public:
-                using iter_cat = forward_iterator_tag;
-                using diff = ptrdiff_t;
-                using value_type = T;
-                using pointer = T*;
-                using reference = T&;
+                using value_type = pair<string, T>;
+                using pointer = pair<string, T>*;
+                using reference = pair<string, T>&;
 
                 Iterator(pointer ptr): ptr(ptr) {};
                 ~Iterator() {};
@@ -101,13 +95,24 @@ class Map {
         }
 
     protected:
-        set<pair<string, T>> entries;
         set<string> keys;
-        vector<T> values;
+        vector<pair<string, T>> entries;
 
 };
 
 int main(int argc, char const *argv[]) {
-    
+
+    Map_m<int> mymap;
+
+    mymap.insert("key", 1);
+    mymap.insert("another-key", 2);
+
+    auto it = mymap.begin();
+    while(it != mymap.end()) {
+        cout << it->first << ":" << it->second << endl;
+        it++;
+    }
+
+
     return 0;
 }

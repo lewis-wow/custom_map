@@ -1,0 +1,19 @@
+{
+    "files.associations": {
+        "javascript": ".js",
+        "stdexcept": "cpp",
+        "string": "cpp",
+        "iosfwd": "cpp",
+        "deque": "cpp",
+        "functional": "cpp",
+        "set": "cpp",
+        "unordered_map": "cpp",
+        "vector": "cpp",
+        "*.tcc": "cpp",
+        "__node_handle": "cpp",
+        "__hash_table": "cpp",
+        "__tree": "cpp",
+        "tuple": "cpp",
+        "type_traits": "cpp"
+    }
+}
