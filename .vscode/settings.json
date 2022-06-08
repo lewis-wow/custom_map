@@ -14,6 +14,8 @@
         "__hash_table": "cpp",
         "__tree": "cpp",
         "tuple": "cpp",
-        "type_traits": "cpp"
+        "type_traits": "cpp",
+        "iostream": "cpp",
+        "cassert": "cpp"
     }
 }

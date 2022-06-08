@@ -3,6 +3,7 @@
 #include <vector>
 #include <memory>
 #include <iostream>
+#include <functional>
 
 using namespace std;
 
@@ -23,7 +24,7 @@ class Map_m {
         }
 
         void erase(const string& key) {
-            if(keys.find(key)) {
+            if(keys.find(key) != keys.end()) {
                 keys.erase(key);
                 
                 for(auto it = entries.begin(); it != entries.end(); it++) {
@@ -94,6 +95,12 @@ class Map_m {
             return Iterator(&entries[entries.size()]);
         }
 
+        void forEach(function<void(const string&, T)> f) {
+            for(auto it = begin(); it != end(); it++) {
+                f(it->first, it->second);
+            }
+        }
+
     protected:
         set<string> keys;
         vector<pair<string, T>> entries;
@@ -113,6 +120,17 @@ int main(int argc, char const *argv[]) {
         it++;
     }
 
+    mymap.erase("another-key");
+
+    it = mymap.begin();
+    while(it != mymap.end()) {
+        cout << it->first << ":" << it->second << endl;
+        it++;
+    }
+
+    mymap.forEach([](const string& key, int item) {
+        cout << key << ":" << item << endl;
+    });
 
     return 0;
 }
