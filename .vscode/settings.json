@@ -16,6 +16,7 @@
         "tuple": "cpp",
         "type_traits": "cpp",
         "iostream": "cpp",
-        "cassert": "cpp"
+        "cassert": "cpp",
+        "list": "cpp"
     }
 }

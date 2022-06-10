@@ -7,80 +7,111 @@
 #include <map>
 #include <queue>
 #include <cassert>
+#include <list>
 
 using namespace std;
 
-class Airports {
+class Bfs {
     public:
-        Airports() {};
-        ~Airports() {};
+        Bfs() {};
+        ~Bfs() {};
 
-        void addAirport(const string& node) {
-            airports.insert(make_pair(
-                node, 
-                set<string>()
-            ));
+        void addNode(const string& node) {
+            /** create new node in map (graph) with set of relations with other nodes */
+            graph[node] = set<string>();
         }
 
-        void addEdge(const string& origin, const string& dest) {
-            airports.at(origin).insert(dest);
-            airports.at(dest).insert(origin);
+        void addEdge(const string& a, const string& b) {
+            /** edge from a -> b and b -> a */
+            graph[a].insert(b);
+            graph[b].insert(a);
+
+            /** if you want edge only from a -> b */
+            //graph[a].insert(b);
         }
 
-        set<string> bfs(const string& start, const string& search) {
-            auto q = queue<string>();
-            auto visited = set<string>();
-            q.push(start);
+        list<string> bfs(const string& from, const string& to) {
+            map<string, bool> visited; // if node is already visited
+            map<string, string> parent; // store child node parent - for find the shortest path between two nodes
+            map<string, int> level; // for distance between from and any other node in the graph
 
-            while(q.size() > 0) {
-                auto curr = q.front();
-                q.pop();
+            queue<string> q; // bfs uses queue for every node to be processed
+            // naopak dfs pouziva stack, ktery ovsem netvori programator, ale rekurze
 
-                auto dests = airports.at(curr);
+            q.push(from); // do fronty posleme na zpracovani nas startovaci node
 
-                for(auto it = dests.begin(); it != dests.end(); it++) {
-                    auto dest = *it;
+            // nastavime zakladni veci pro startovaci uzel
+            visited[from] = true;
+            parent[from] = ""; // toto je nepovinne
+            level[from] = 0;
 
-                    if(dest == search) {
-                        return visited;
+            while(!q.empty()) { // dokud jsou ve fronte nejake nody (na zacatku je tam pouze start uzel)
+
+                auto curr = q.front(); q.pop(); // node, ktery v tuhle chvily zpracovavame
+
+                if(curr == to) { // pokud je tento node roven cily, nasli jsme ho a koncime
+                    auto res = list<string>(); 
+
+                    // jedeme pozpatku!
+                    res.push_front(curr); // do listu pushujeme zepredu (pozpatku), protoze jdeme pomoci parentu vzdy o level vis
+                    while(curr != from) { // dokud nejsem opet zpet na startu, vracime
+                        curr = parent[curr]; // dostaneme parenta a pushneme ho do listu
+                        res.push_front(curr);
                     }
 
-                    if(visited.find(dest) == visited.end()) {
-                        visited.insert(dest);
-                        q.push(dest);
+                    return res; // list res tvori list nodu, ktery reprezentuji nejkratsi cestu mezi bodem from a bodem to
+                }
+
+                // pokud jsme jeste nedosli do cile
+                for(const auto& item: graph[curr]) {
+
+                    // pokud jsme node jeste nenavstivily, pokud ano, preskocime ho, uz je zpracovany
+                    if(visited.find(item) == visited.end()) {
+                        visited[item] = true;
+                        parent[item] = curr; // parent vsech nodu, ktere jsou spojeny s curr nodem, je samozrejme curr node -> jdeme ze shora dolu
+                        level[item] = level[curr] + 1; // level je vzdy o 1 vetsi nez co byl
+
+                        q.push(item); // posleme node na zpracovani (jeste preci nebyl zpracovan, zpracovan byl pouze jeho parent)
                     }
                 }
 
             }
 
-            return set<string>();
+            return list<string>(); // pokud jsme nenasli cil vratime prazdny list
         }
 
     private:
-        map<string, set<string>> airports;
+        /** whole graph representation */
+        map<string, set<string>> graph;
 };
 
 int main(int argc, char const *argv[]) {
+    // testy
 
-    vector<string> airports = { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k" };
-    map<string, string> relations = {
-        {"a", "b"},
-        {"b", "c"},
-        {"c", "d"},
-        {"d", "e"}
-    };
+    Bfs bfs;
+    bfs.addNode("a");
+    bfs.addNode("b");
+    bfs.addNode("c");
+    bfs.addNode("d");
+    bfs.addNode("e");
 
-    Airports a;
+    bfs.addEdge("a", "b");
+    bfs.addEdge("a", "d");
+    bfs.addEdge("b", "c");
+    bfs.addEdge("c", "d");
+    bfs.addEdge("d", "e");
 
-    for(const auto& item: airports) {
-        a.addAirport(item);
-    }
+    assert(!(bfs.bfs("a", "e") == list<string>{"a","b","c","d","e"})); // neni nejkratsi
+    assert((bfs.bfs("a", "e") == list<string>{"a","d","e"})); // je nejkratsi
+    assert((bfs.bfs("a", "f") == list<string>())); // f neni v grafu
 
-    for(const auto& item: relations) {
-        a.addEdge(item.first, item.second);
-    }
+    bfs.addNode("f");
 
-    assert((a.bfs("a", "e") == set<string>{"a","b","c","d"}));
+    bfs.addEdge("b", "d");
+    bfs.addEdge("c", "f");
+    bfs.addEdge("a", "f");
+
+    assert((bfs.bfs("b", "f") == list<string>{"b","a","f"})); // nejkratsi cesta
 
     return 0;
 }
