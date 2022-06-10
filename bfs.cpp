@@ -31,7 +31,7 @@ class Bfs {
         }
 
         list<string> bfs(const string& from, const string& to) {
-            map<string, bool> visited; // if node is already visited
+            map<string, bool> visited; // if node was already visited
             map<string, string> parent; // store child node parent - for find the shortest path between two nodes
             map<string, int> level; // for distance between from and any other node in the graph
 
